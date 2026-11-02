@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বাংলা বাজার - Multi-Vendor E-Commerce</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sky-blue: #87CEEB;
+            --deep-blue: #1E88E5;
+            --light-bg-blue: #E3F2FD;
+            --bright-green: #2ECC71;
+            --hover-green: #27AE60;
+            --vibrant-yellow: #FFD700;
+            --dark-text: #2C3E50;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-border: #E0E0E0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg-blue);
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Modal / Popup Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-top: 6px solid var(--deep-blue);
+        }
+
+        .modal-card h2 {
+            color: var(--deep-blue);
+            margin-bottom: 15px;
+        }
+
+        .modal-card p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-yellow {
+            background-color: var(--vibrant-yellow);
+            color: #333;
+        }
+
+        .btn-yellow:hover {
+            background-color: #E6C200;
+        }
+
+        .btn-green {
+            background-color: var(--bright-green);
+            color: var(--white);
+        }
+
+        .btn-green:hover {
+            background-color: var(--hover-green);
+        }
+
+        .btn-blue {
+            background-color: var(--deep-blue);
+            color: var(--white);
+        }
+
+        .btn-blue:hover {
+            background-color: #1565C0;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, var(--deep-blue), var(--sky-blue));
+            color: var(--white);
+            padding: 15px 5%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px 0 0 6px;
+            outline: none;
+        }
+
+        .search-bar button {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.3rem;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background: var(--vibrant-yellow);
+            color: var(--dark-text);
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+
+        /* Authentication View */
+        .auth-container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--sky-blue);
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--dark-text);
+        }
+
+        .role-btn.active {
+            background-color: var(--sky-blue);
+            color: var(--white);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-border);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        /* Seller Dashboard / Post Product */
+        .seller-dashboard {
+            max-width: 700px;
+            margin: 30px auto;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .seller-dashboard h2 {
+            color: var(--deep-blue);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--vibrant-yellow);
+            padding-bottom: 8px;
+        }
+
+        /* Products Grid (Buyer View) */
+        .main-content {
+            padding: 30px 5%;
+            flex: 1;
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #E0E0E0;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: var(--gray-light);
+        }
+
+        .product-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            color: var(--deep-blue);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .product-card .btn {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .badge-seller {
+            font-size: 0.75rem;
+            background: var(--light-bg-blue);
+            color: var(--deep-blue);
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-text);
+            color: var(--white);
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Popup -->
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2><i class="fa-solid fa-store"></i> স্বাগতম!</h2>
+            <p>আমাদের ই-কমার্স ওয়েবসাইটে আপনাকে স্বাগতম জানাচ্ছি। কেনাকাটা করতে অথবা আপনার নিজস্ব পণ্য বিক্রি করতে সাথেই থাকুন!</p>
+            <button class="btn btn-yellow" onclick="closeWelcomeModal()">প্রবেশ করুন</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-bag-shopping"></i> বাংলা বাজার
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="পণ্য খুঁজুন..." onkeyup="filterProducts()">
+                <button class="btn btn-yellow"><i class="fa-solid fa-magnifying-glass"></i></
