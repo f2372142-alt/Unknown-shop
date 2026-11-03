@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বাংলা বাজার - Multi-Vendor E-Commerce</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sky-blue: #87CEEB;
+            --deep-blue: #1E88E5;
+            --light-bg-blue: #E3F2FD;
+            --bright-green: #2ECC71;
+            --hover-green: #27AE60;
+            --vibrant-yellow: #FFD700;
+            --dark-text: #2C3E50;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-border: #E0E0E0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg-blue);
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Modal / Popup Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-top: 6px solid var(--deep-blue);
+        }
+
+        .modal-card h2 {
+            color: var(--deep-blue);
+            margin-bottom: 15px;
+        }
+
+        .modal-card p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-yellow {
+            background-color: var(--vibrant-yellow);
+            color: #333;
+        }
+
+        .btn-yellow:hover {
+            background-color: #E6C200;
+        }
+
+        .btn-green {
+            background-color: var(--bright-green);
+            color: var(--white);
+        }
+
+        .btn-green:hover {
+            background-color: var(--hover-green);
+        }
+
+        .btn-blue {
+            background-color: var(--deep-blue);
+            color: var(--white);
+        }
+
+        .btn-blue:hover {
+            background-color: #1565C0;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, var(--deep-blue), var(--sky-blue));
+            color: var(--white);
+            padding: 15px 5%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px 0 0 6px;
+            outline: none;
+        }
+
+        .search-bar button {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.3rem;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background: var(--vibrant-yellow);
+            color: var(--dark-text);
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+
+        /* Authentication View */
+        .auth-container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--sky-blue);
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--dark-text);
+        }
+
+        .role-btn.active {
+            background-color: var(--sky-blue);
+            color: var(--white);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-border);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        /* Seller Dashboard / Post Product */
+        .seller-dashboard {
+            max-width: 700px;
+            margin: 30px auto;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .seller-dashboard h2 {
+            color: var(--deep-blue);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--vibrant-yellow);
+            padding-bottom: 8px;
+        }
+
+        /* Products Grid (Buyer View) */
+        .main-content {
+            padding: 30px 5%;
+            flex: 1;
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #E0E0E0;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: var(--gray-light);
+        }
+
+        .product-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            color: var(--deep-blue);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .product-card .btn {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .badge-seller {
+            font-size: 0.75rem;
+            background: var(--light-bg-blue);
+            color: var(--deep-blue);
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-text);
+            color: var(--white);
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Popup -->
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2><i class="fa-solid fa-store"></i> স্বাগতম!</h2>
+            <p>আমাদের ই-কমার্স ওয়েবসাইটে আপনাকে স্বাগতম জানাচ্ছি। কেনাকাটা করতে অথবা আপনার নিজস্ব পণ্য বিক্রি করতে সাথেই থাকুন!</p>
+            <button class="btn btn-yellow" onclick="closeWelcomeModal()">প্রবেশ করুন</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-bag-shopping"></i> বাংলা বাজার
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="পণ্য খুঁজুন..." onkeyup="filterProducts()">
+                <button class="btn btn-yellow"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="user-nav">
+                <span id="userStatusDisplay">গেস্ট ইউজার</span>
+                <button id="authNavBtn" class="btn btn-green" onclick="showAuthView()">লগইন</button>
+                <div class="cart-icon" onclick="alert('আপনার কার্ট দেখতে কেনাকাটা শুরু করুন!')">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-badge" id="cartCount">০</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <div class="main-content">
+
+        <!-- Login / Register View -->
+        <div id="authView" class="auth-container hidden">
+            <h2 style="text-align: center; margin-bottom: 20px; color: var(--deep-blue);">অ্যাকোউন্টে প্রবেশ করুন</h2>
+            <div class="role-selector">
+                <button class="role-btn active" id="btnBuyerRole" onclick="setRole('buyer')">বায়ার (ক্রেতা)</button>
+                <button class="role-btn" id="btnSellerRole" onclick="setRole('seller')">সেলার (বিক্রেতা)</button>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>ইমেইল ঠিকানা</label>
+                    <input type="email" id="authEmail" required placeholder="example@mail.com">
+                </div>
+                <div class="form-group">
+                    <label>পাসওয়ার্ড</label>
+                    <input type="password" required placeholder="******">
+                </div>
+                <button type="submit" class="btn btn-blue" style="width: 100%;">লগইন করুন</button>
+            </form>
+        </div>
+
+        <!-- Seller Post Product View -->
+        <div id="sellerView" class="seller-dashboard hidden">
+            <h2><i class="fa-solid fa-plus-circle"></i> নতুন পণ্য পোস্ট করুন</h2>
+            <form onsubmit="handlePostProduct(event)">
+                <div class="form-group">
+                    <label>পণ্যের নাম</label>
+                    <input type="text" id="prodTitle" required placeholder="যেমন: স্মার্টওয়াচ">
+                </div>
+                <div class="form-group">
+                    <label>মূল্য (টাকা)</label>
+                    <input type="number" id="prodPrice" required placeholder="যেমন: ১২০০">
+                </div>
+                <div class="form-group">
+                    <label>পণ্যের ছবির লিংক (Image URL)</label>
+                    <input type="url" id="prodImg" required placeholder="https://via.placeholder.com/200">
+                </div>
+                <div class="form-group">
+                    <label>পণ্যের বিবরণ</label>
+                    <textarea id="prodDesc" rows="3" placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-green" style="width: 100%;">পণ্য পাবলিশ করুন</button>
+            </form>
+        </div>
+
+        <!-- Marketplace Products View -->
+        <div id="shopView">
+            <div class="section-title">
+                <h2><i class="fa-solid fa-store"></i> বাজারজাতকৃত পণ্যসমূহ</h2>
+            </div>
+            <div class="product-grid" id="productGrid">
+                <!-- Products dynamically rendered via JavaScript -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; ২০২৬ বাংলা বাজার। সর্বস্বত্ব সংরক্ষিত।</p>
+    </footer>
+
+    <script>
+        // Sample Initial Products Data
+        let products = [
+            {
+                id: 1,
+                title: 'ওয়্যারলেস হেডফোন',
+                price: 1500,
+                seller: 'TechStore',
+                image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400'
+            },
+            {
+                id: 2,
+                title: 'স্মার্ট ওয়াচ',
+                price: 2500,
+                seller: 'GadgetHub',
+                image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400'
+            },
+            {
+                id: 3,
+                title: 'রানিং শু (জুতো)',
+                price: 1800,
+                seller: 'FashionPoint',
+                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400'
+            }
+        ];
+
+        let currentUser = null; // { email, role }
+        let selectedRole = 'buyer';
+        let cartCount = 0;
+
+        function closeWelcomeModal() {
+            document.getElementById('welcomeModal').classList.add('hidden');
+        }
+
+        function setRole(role) {
+            selectedRole = role;
+            document.getElementById('btnBuyerRole').classList.toggle('active', role === 'buyer');
+            document.getElementById('btnSellerRole').classList.toggle('active', role === 'seller');
+        }
+
+        function showAuthView() {
+            if (currentUser) {
+                // Logout logic
+                currentUser = null;
+                document.getElementById('userStatusDisplay').innerText = 'গেস্ট ইউজার';
+                document.getElementById('authNavBtn').innerText = 'লগইন';
+                document.getElementById('sellerView').classList.add('hidden');
+                document.getElementById('authView').classList.add('hidden');
+                document.getElementById('shopView').classList.remove('hidden');
+            } else {
+                document.getElementById('shopView').classList.add('hidden');
+                document.getElementById('sellerView').classList.add('hidden');
+                document.getElementById('authView').classList.remove('hidden');
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            currentUser = { email: email, role: selectedRole };
+            
+            document.getElementById('userStatusDisplay').innerText = `${email} (${selectedRole === 'seller' ? 'বিক্রেতা' : 'ক্রেতা'})`;
+            document.getElementById('authNavBtn').innerText = 'লগআউট';
+            document.getElementById('authView').classList.add('hidden');
+
+            if (selectedRole === 'seller') {
+                document.getElementById('sellerView').classList.remove('hidden');
+            }
+            document.getElementById('shopView').classList.remove('hidden');
+        }
+
+        function handlePostProduct(event) {
+            event.preventDefault();
+            const title = document.getElementById('prodTitle').value;
+            const price = document.getElementById('prodPrice').value;
+            const image = document.getElementById('prodImg').value;
+
+            const newProduct = {
+                id: Date.now(),
+                title: title,
+                price: price,
+                seller: currentUser ? currentUser.email : 'সেলার',
+                image: image
+            };
+
+            products.unshift(newProduct);
+            renderProducts(products);
+            alert('আপনার পণ্যটি সফলভাবে পাবলিশ করা হয়েছে!');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function addToCart() {
+            cartCount++;
+            document.getElementById('cartCount').innerText = cartCount;
+            alert('পণ্যটি কার্টে যুক্ত করা হয়েছে!');
+        }
+
+        function renderProducts(items) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            
+            items.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${prod.image}" class="product-img" alt="${prod.title}" onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
+                    <div class="product-info">
+                        <span class="badge-seller"><i class="fa-solid fa-user"></i> ${prod.seller}</span>
+                        <div class="product-title">${prod.title}</div>
+                        <div class="product-price">৳ ${prod.price}</div>
+                        <button class="btn btn-green" onclick="addToCart()"><i class="fa-solid fa-cart-plus"></i> কার্টে রাখুন</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => p.title.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
+
+        // Initial Render
+        renderProducts(products);
+    </script>
+</body>
+  </html>
